@@ -46,7 +46,11 @@ pub mod pallet {
         // TODO Part III
     }
 
-    // ACTION: Storage item to keep a count of all existing Kitties.
+    // Storage item to keep a count of all existing Kitties.
+	#[pallet::storage]
+	#[pallet::getter(fn count_for_kitties)]
+	/// Keeps track of the total number of Kitties in existence.
+	pub(super) type CountForKitties<T: Config> = StorageValue<_, u64, ValueQuery>;
 
     // TODO Part II: Remaining storage items.
 
