@@ -3551,14 +3551,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "node-kitty-node"
+name = "node-kitty_node"
 version = "4.0.0-dev"
 dependencies = [
  "clap",
  "frame-benchmarking",
  "frame-benchmarking-cli",
  "jsonrpc-core",
- "node-kitty-node-runtime",
+ "node-kitty_node-runtime",
  "pallet-transaction-payment-rpc",
  "sc-basic-authorship",
  "sc-cli",
@@ -3588,7 +3588,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "node-kitty-node-runtime"
+name = "node-kitty_node-runtime"
 version = "4.0.0-dev"
 dependencies = [
  "frame-benchmarking",

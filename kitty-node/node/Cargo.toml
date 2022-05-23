@@ -1,5 +1,5 @@
 [package]
-name = "node-kitty-node"
+name = "node-kitty_node"
 version = "4.0.0-dev"
 description = "A fresh FRAME-based Substrate node, ready for hacking."
 authors = ["Substrate DevHub <https://github.com/substrate-developer-hub>"]
@@ -14,7 +14,7 @@ build = "build.rs"
 targets = ["x86_64-unknown-linux-gnu"]
 
 [[bin]]
-name = "node-kitty-node"
+name = "node-kitty_node"
 
 [dependencies]
 clap = { version = "3.0", features = ["derive"] }
@@ -53,11 +53,11 @@ frame-benchmarking = { version = "4.0.0-dev", git = "https://github.com/parityte
 frame-benchmarking-cli = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.17" }
 
 # Local Dependencies
-node-kitty-node-runtime = { version = "4.0.0-dev", path = "../runtime" }
+node-kitty_node-runtime = { version = "4.0.0-dev", path = "../runtime" }
 
 [build-dependencies]
 substrate-build-script-utils = { version = "3.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.17" }
 
 [features]
 default = []
-runtime-benchmarks = ["node-kitty-node-runtime/runtime-benchmarks"]
+runtime-benchmarks = ["node-kitty_node-runtime/runtime-benchmarks"]
