@@ -8,7 +8,7 @@ pub mod pallet {
 		sp_runtime::traits::{Hash, Zero},
         dispatch::{DispatchResultWithPostInfo, DispatchResult},
         traits::{Currency, ExistenceRequirement, Randomness},
-        pallet_prelude::*
+        pallet_prelude::{*, ValueQuery}, Twox64Concat
     };
     use frame_system::pallet_prelude::*;
     use sp_io::hashing::blake2_128;
@@ -57,7 +57,9 @@ pub mod pallet {
 		/// KittyRandomness type bound by Randomness trait.
 		type KittyRandomness: Randomness<Self::Hash, Self::BlockNumber>;
 
-        // ACTION #9: Add MaxKittyOwned constant
+        /// Constant for maximum Kitties owned.
+		#[pallet::constant]
+		type MaxKittyOwned: Get<u32>;
 
     }
 
@@ -79,7 +81,24 @@ pub mod pallet {
 	/// Keeps track of the total number of Kitties in existence.
 	pub(super) type CountForKitties<T: Config> = StorageValue<_, u64, ValueQuery>;
 
-    // ACTION #7: Remaining storage items.
+	#[pallet::storage]
+	#[pallet::getter(fn kitties)]
+	pub(super) type Kitties<T: Config> = StorageMap<
+		_,
+		Twox64Concat,
+		T::Hash,
+		Kitty<T>,
+	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn kitties_owned)]
+	pub(super) type KittiesOwned<T: Config> = StorageMap<
+		_,
+		Twox64Concat,
+		T::AccountId,
+		BoundedVec<T::Hash, T::MaxKittyOwned>,
+		ValueQuery,
+	>;
 
     // TODO Part IV: Our pallet's genesis configuration.
 
