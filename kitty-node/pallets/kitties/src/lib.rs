@@ -103,7 +103,13 @@ pub mod pallet {
 
     impl<T: Config> Pallet<T> {
 
-        // ACTION #4: helper function for Kitty struct
+		pub fn gen_gender() -> Gender {
+			let random = T::KittyRandomness::random(&b"gender"[..]).0;
+			match random.as_ref()[0] % 2 {
+				0 => Gender::Male,
+				_ => Gender::Female,
+			}
+		}
 
         // TODO Part III: helper functions for dispatchable functions
 
