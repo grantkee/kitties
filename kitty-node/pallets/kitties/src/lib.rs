@@ -109,9 +109,14 @@ pub mod pallet {
 			}
 		}
 
-        // TODO Part III: helper functions for dispatchable functions
-
-        // ACTION #6: function to randomly generate DNA
+		pub fn gen_dna() -> [u8; 16] {
+			let payload = (
+				T::KittyRandomness::random(&b"dna"[..]).0,
+				<frame_system::Pallet<T>>::extrinsic_index().unwrap_or_default(),
+				<frame_system::Pallet<T>>::block_number(),
+			);
+			payload.using_encoded(blake2_128)
+		}
 
         // TODO Part III: mint
 
