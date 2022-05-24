@@ -54,10 +54,8 @@ pub mod pallet {
         /// The Currency handler for the Kitties pallet.
         type Currency: Currency<Self::AccountId>;
 
-        // TODO Part II: Specify the custom types for our runtime.
-
-
-        // ACTION #5: Specify the type for Randomness we want to specify for runtime.
+		/// KittyRandomness type bound by Randomness trait.
+		type KittyRandomness: Randomness<Self::Hash, Self::BlockNumber>;
 
         // ACTION #9: Add MaxKittyOwned constant
 
