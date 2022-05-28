@@ -75,7 +75,14 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		// TODO Part III
+		/// Kitty was successfully created. [snder, kitty_id]
+		Created(T::AccountId, T::Hash),
+		/// Kitty price was successfully set. [sender, kitty_id, new_price]
+		PriceSet(T::AccountId, T::Hash, Option<BalanceOf<T>>),
+		/// Kitty was successfully transferred to a different owner. [from, to, kitty_id]
+		Transferred(T::AccountId, T::AccountId, T::Hash),
+		/// Kitty was successfully bought.
+		Bought(T::AccountId, T::AccountId, T::Hash, BalanceOf<T>),
 	}
 
 	// Storage item to keep a count of all existing Kitties.
@@ -110,7 +117,7 @@ pub mod pallet {
 			// log to console
 			log::info!("A kitty is born with ID: {:?}", kitty_id);
 
-			// TODO: Deposit `Created` event
+			Self::deposit_event(Event::Created(sender, kitty_id));
 
 			Ok(())
 		}
