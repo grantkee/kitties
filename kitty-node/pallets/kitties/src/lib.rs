@@ -10,10 +10,9 @@ pub mod pallet {
         traits::{Currency, ExistenceRequirement, Randomness},
         pallet_prelude::{*, ValueQuery}, Twox64Concat
     };
-    use frame_system::pallet_prelude::*;
+    use frame_system::pallet_prelude::{*, OriginFor};
     use sp_io::hashing::blake2_128;
 	use scale_info::TypeInfo;
-
 
     #[cfg(feature = "std")]
     use frame_support::serde::{Deserialize, Serialize};
@@ -38,8 +37,6 @@ pub mod pallet {
 		Male,
 		Female,
 	}
-
-    // ACTION #3: Implementation to handle Gender type in Kitty struct.
 
     #[pallet::pallet]
     #[pallet::generate_store(pub(super) trait Store)]
@@ -105,7 +102,18 @@ pub mod pallet {
     #[pallet::call]
     impl<T: Config> Pallet<T> {
 
-        // TODO Part III: create_kitty
+		#[pallet::weight(100)]
+		pub fn create_kitty(origin: OriginFor<T>) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+			let kitty_id = Self::mint(&sender, None, None)?;
+
+			// log to console
+			log::info!("A kitty is born with ID: {:?}", kitty_id);
+
+			// TODO: Deposit `Created` event
+
+			Ok(())
+		}
 
         // TODO Part IV: set_price
 
