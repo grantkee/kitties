@@ -70,6 +70,20 @@ pub mod pallet {
 		ExceedMaxKittyOwned,
 		/// New kitty is not unique and already exists.
 		KittyExists,
+		/// Buyer cannot be the owner.
+		BuyerIsKittyOwner,
+		/// Cannot transfer a kitty to its owner.
+		TransferToSelf,
+		/// This kitty doesn't exist
+		KittyNotExist,
+		/// Handles checking that the Kitty is owned by the account transferring, buying or setting a price for it.
+		NotKittyOwner,
+		/// Ensures the Kitty is for sale.
+		KittyNotForSale,
+		/// Ensures that the buying price is greater than the asking price.
+		KittyBidPriceTooLow,
+		/// Ensures that an account has enough funds to purchase a Kitty.
+		NotEnoughBalance,
 	}
 
 	#[pallet::event]
