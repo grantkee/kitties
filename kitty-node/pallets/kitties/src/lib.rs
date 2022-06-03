@@ -146,6 +146,14 @@ pub mod pallet {
 
 			ensure!(Self::is_kitty_owner(&kitty_id, &sender)?, <Error<T>>::NotKittyOwner);
 
+			let mut kitty = Self::kitties(&kitty_id).ok_or(<Error<T>>::KittyNotExist)?;
+
+			kitty.price = new_price.clone();
+			<Kitties<T>>::insert(&kitty_id, kitty);
+
+			// deposit "PriceSet" event
+			Self::deposit_event(Event::PriceSet(sender, kitty_id, new_price));
+
 			Ok(())
 		}
 
