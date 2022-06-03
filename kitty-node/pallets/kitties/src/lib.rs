@@ -136,7 +136,18 @@ pub mod pallet {
 			Ok(())
 		}
 
-		// TODO Part IV: set_price
+		#[pallet::weight(100)]
+		pub fn set_price(
+			origin: OriginFor<T>,
+			kitty_id: T::Hash,
+			new_price: Option<BalanceOf<T>>
+		) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			ensure!(Self::is_kitty_owner(&kitty_id, &sender)?, <Error<T>>::NotKittyOwner);
+
+			Ok(())
+		}
 
 		// TODO Part IV: transfer
 
@@ -197,6 +208,16 @@ pub mod pallet {
 			<Kitties<T>>::insert(kitty_id, kitty);
 			<CountForKitties<T>>::put(new_count);
 			Ok(kitty_id)
+		}
+
+		pub fn is_kitty_owner(
+			kitty_id: &T::Hash,
+			account: &T::AccountId,
+		) -> Result<bool, Error<T>> {
+			match Self::kitties(kitty_id) {
+				Some(kitty) => Ok(kitty.owner == *account),
+				None => Err(<Error<T>>::KittyNotExist)
+			}
 		}
 
 		// TODO Part IV: transfer_kitty_to
