@@ -181,6 +181,7 @@ pub mod pallet {
 			Ok(())
 		}
 
+		#[transactional]
 		#[pallet::weight(100)]
 		pub fn buy_kitty(
 			origin: OriginFor<T>,
@@ -210,9 +211,14 @@ pub mod pallet {
 
 			let seller = kitty.owner.clone();
 
-			// ACTION #7: Check if buyer can receive Kitty.
+			// transfer amount from buyer to seller
+			T::Currency::transfer(&buyer, &seller, bid_price, ExistenceRequirement::KeepAlive)?;
 
-			// ACTION #8: Update Balances using the Currency trait.
+			// transfer kitty from buyer to seller
+			Self::transfer_kitty_to(&kitty_id, &buyer)?;
+
+			// deposit event
+			Self::deposit_event(Event::Bought(buyer, seller, kitty_id, bid_price));
 
 			Ok(())
 		}
