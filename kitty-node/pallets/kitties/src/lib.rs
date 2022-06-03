@@ -181,7 +181,41 @@ pub mod pallet {
 			Ok(())
 		}
 
-		// TODO Part IV: buy_kitty
+		#[pallet::weight(100)]
+		pub fn buy_kitty(
+			origin: OriginFor<T>,
+			kitty_id: T::Hash,
+			bid_price: BalanceOf<T>
+		) -> DispatchResult {
+			let buyer = ensure_signed(origin)?;
+
+			// check the kitty exists and buyer is not the current kitty owner
+			let kitty = Self::kitties(&kitty_id).ok_or(<Error<T>>::KittyNotExist)?;
+			ensure!(kitty.owner != buyer, <Error<T>>::BuyerIsKittyOwner);
+
+			// ensure kitty is for sale
+			// ensure ask_price <= bid_price
+			if let Some(ask_price) = kitty.price {
+				ensure!(ask_price <= bid_price, <Error<T>>::KittyBidPriceTooLow);
+			} else {
+				Err(<Error<T>>::KittyNotForSale)?;
+			}
+
+			// ensure buyer has enough free balance to purchase kitty
+			ensure!(T::Currency::free_balance(&buyer) >= bid_price, <Error<T>>::NotEnoughBalance);
+
+			// ensure buyer has capacity for another kitty
+			let to_owned = <KittiesOwned<T>>::get(&buyer);
+			ensure!((to_owned.len() as u32) < T::MaxKittyOwned::get(), <Error<T>>::ExceedMaxKittyOwned);
+
+			let seller = kitty.owner.clone();
+
+			// ACTION #7: Check if buyer can receive Kitty.
+
+			// ACTION #8: Update Balances using the Currency trait.
+
+			Ok(())
+		}
 
 		// TODO Part IV: breed_kitty
 	}
