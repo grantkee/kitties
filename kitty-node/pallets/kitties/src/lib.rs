@@ -10,6 +10,7 @@ pub mod pallet {
 		sp_runtime::traits::{Hash, Zero},
 		traits::{Currency, ExistenceRequirement, Randomness},
 		Twox64Concat,
+		transactional,
 	};
 	use frame_system::pallet_prelude::{OriginFor, *};
 	use scale_info::TypeInfo;
@@ -99,12 +100,12 @@ pub mod pallet {
 		Bought(T::AccountId, T::AccountId, T::Hash, BalanceOf<T>),
 	}
 
-	// Storage item to keep a count of all existing Kitties.
 	#[pallet::storage]
 	#[pallet::getter(fn count_for_kitties)]
 	/// Keeps track of the total number of Kitties in existence.
 	pub(super) type CountForKitties<T: Config> = StorageValue<_, u64, ValueQuery>;
-
+	
+	/// Storage item to keep a count of all existing Kitties.
 	#[pallet::storage]
 	#[pallet::getter(fn kitties)]
 	pub(super) type Kitties<T: Config> = StorageMap<_, Twox64Concat, T::Hash, Kitty<T>>;
@@ -157,7 +158,28 @@ pub mod pallet {
 			Ok(())
 		}
 
-		// TODO Part IV: transfer
+		#[pallet::weight(200)]
+		pub fn transer(
+			origin: OriginFor<T>,
+			new_owner: T::AccountId,
+			kitty_id: T::Hash,
+		) -> DispatchResult {
+			let from = ensure_signed(origin)?;
+
+			// ensure kitty exists and is called by the current owner
+			ensure!(Self::is_kitty_owner(&kitty_id, &from)?, <Error<T>>::NotKittyOwner);
+
+			// verify the kitty is not transferring to current owner
+			ensure!(from != new_owner, <Error<T>>::TransferToSelf);
+
+			// verify new owner has capacity for another kitty
+			let to_owned = <KittiesOwned<T>>::get(&new_owner);
+			ensure!((to_owned.len() as u32) < T::MaxKittyOwned::get(), <Error<T>>::ExceedMaxKittyOwned);
+
+			Self::transfer_kitty_to(&kitty_id, &new_owner)?;
+
+			Ok(())
+		}
 
 		// TODO Part IV: buy_kitty
 
@@ -228,6 +250,36 @@ pub mod pallet {
 			}
 		}
 
-		// TODO Part IV: transfer_kitty_to
+		#[transactional]
+		pub fn transfer_kitty_to(
+			kitty_id: &T::Hash,
+			new_owner: &T::AccountId,
+		) -> Result<(), Error<T>> {
+			let mut kitty = Self::kitties(&kitty_id).ok_or(<Error<T>>::KittyNotExist)?;
+
+			let prev_owner = kitty.owner.clone();
+
+			// remove kitty_id from KittiesOwned vec of prev_owner
+			<KittiesOwned<T>>::try_mutate(&prev_owner, |owned| {
+				if let Some(ind) = owned.iter().position(|&id| id == *kitty_id) {
+					owned.swap_remove(ind);
+					return Ok(());
+				}
+				Err(())
+			}).map_err(|_| <Error<T>>::KittyNotExist)?;
+
+			// update kitt owner
+			kitty.owner = new_owner.clone();
+
+			// reset the price so the kitty is not for sale until `set_price()` is called by new_owner
+			kitty.price = None;
+
+			<Kitties<T>>::insert(kitty_id, kitty);
+			<KittiesOwned<T>>::try_mutate(new_owner, |vec| {
+				vec.try_push(*kitty_id)
+			}).map_err(|_| <Error<T>>::ExceedMaxKittyOwned)?;
+
+			Ok(())
+		}
 	}
 }
