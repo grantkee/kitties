@@ -120,7 +120,31 @@ pub mod pallet {
 		ValueQuery,
 	>;
 
-	// TODO Part IV: Our pallet's genesis configuration.
+	// genesis configuration
+	#[pallet::genesis_config]
+	pub struct GenesisConfig<T: Config> {
+		pub kitties: Vec<(T::AcountId, [u8; 16], Gender)>,
+	}
+
+	// required to implement default for GenesisConfig
+	#[cfg(feature = "std")]
+	impl<T: Config> Default for GenesisConfig<T> {
+		fn default() -> GenesisConfig<T> {
+			GenesisConfig {
+				kitties: vec![],
+			}
+		}
+	}
+
+	#[pallet::genesis_build]
+	impl<T: Config> GenesisBuild<T> for GenesisConfig<T> {
+		fn build(&self) {
+			// require dna and gender when build kitty from genesis config
+			for (acct, dna, gender) in &self.kitties {
+				let _ = <Pallet<T>>::mint(acct, Some(dna.clone()), Some(gender.clone()));
+			}
+		}
+	}
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
