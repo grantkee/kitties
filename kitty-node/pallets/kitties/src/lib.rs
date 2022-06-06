@@ -226,6 +226,7 @@ pub mod pallet {
 		/// Breed kitty.
 		/// 
 		/// Breed two kitties to create a new generation.
+		#[pallet::weight(150)]
 		pub fn breed_kitty(
 			origin: OriginFor<T>,
 			parent1: T::Hash,
