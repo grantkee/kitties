@@ -123,7 +123,7 @@ pub mod pallet {
 	// genesis configuration
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T: Config> {
-		pub kitties: Vec<(T::AcountId, [u8; 16], Gender)>,
+		pub kitties: Vec<(T::AccountId, [u8; 16], Gender)>,
 	}
 
 	// required to implement default for GenesisConfig
