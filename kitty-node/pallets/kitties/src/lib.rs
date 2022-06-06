@@ -378,7 +378,7 @@ pub mod pallet {
 			let mut new_dna = Self::gen_dna();
 
 			for i in 0..new_dna.len() {
-				new_dna[i] = (new_dna[i] & dna1[i] | (!new_dna[i] & dna2[i]));
+				new_dna[i] = (new_dna[i] & dna1[i]) | (!new_dna[i] & dna2[i]);
 			}
 
 			Ok(new_dna)
