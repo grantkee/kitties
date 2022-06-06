@@ -12,7 +12,7 @@ pub mod pallet {
 		Twox64Concat,
 		transactional,
 	};
-	use frame_system::pallet_prelude::{OriginFor, *};
+	use frame_system::{pallet_prelude::{OriginFor, *}, ensure_signed};
 	use scale_info::TypeInfo;
 	use sp_io::hashing::blake2_128;
 
@@ -223,13 +223,34 @@ pub mod pallet {
 			Ok(())
 		}
 
-		// TODO Part IV: breed_kitty
+		/// Breed kitty.
+		/// 
+		/// Breed two kitties to create a new generation.
+		pub fn breed_kitty(
+			origin: OriginFor<T>,
+			parent1: T::Hash,
+			parent2: T::Hash
+		) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			// verify `sender` owns both kitties
+			// and both parents exist
+			ensure!(Self::is_kitty_owner(&parent1, &sender)?, <Error<T>>::NotKittyOwner);
+			ensure!(Self::is_kitty_owner(&parent2, &sender)?, <Error<T>>::NotKittyOwner);
+
+			let new_dna = Self::breed_dna(&parent1, &parent2)?;
+
+			Self::mint(&sender, Some(new_dna), None)?;
+
+		    Ok(())
+
+		}
 	}
 
-	//** Our helper functions.**//
+	//** helper functions **//
 
 	impl<T: Config> Pallet<T> {
-		pub fn gen_gender() -> Gender {
+		fn gen_gender() -> Gender {
 			let random = T::KittyRandomness::random(&b"gender"[..]).0;
 			match random.as_ref()[0] % 2 {
 				0 => Gender::Male,
@@ -237,7 +258,7 @@ pub mod pallet {
 			}
 		}
 
-		pub fn gen_dna() -> [u8; 16] {
+		fn gen_dna() -> [u8; 16] {
 			let payload = (
 				T::KittyRandomness::random(&b"dna"[..]).0,
 				<frame_system::Pallet<T>>::extrinsic_index().unwrap_or_default(),
@@ -320,6 +341,22 @@ pub mod pallet {
 			}).map_err(|_| <Error<T>>::ExceedMaxKittyOwned)?;
 
 			Ok(())
+		}
+
+		pub fn breed_dna(
+			parent1: &T::Hash,
+			parent2: &T::Hash,
+		) -> Result<[u8; 16], Error<T>> {
+			let dna1 = Self::kitties(parent1).ok_or(<Error<T>>::KittyNotExist)?.dna;
+			let dna2 = Self::kitties(parent2).ok_or(<Error<T>>::KittyNotExist)?.dna;
+
+			let mut new_dna = Self::gen_dna();
+
+			for i in 0..new_dna.len() {
+				new_dna[i] = (new_dna[i] & dna1[i] | (!new_dna[i] & dna2[i]));
+			}
+
+			Ok(new_dna)
 		}
 	}
 }
