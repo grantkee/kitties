@@ -1,1 +1,1 @@
-License: Unlicense
+Kitties project 
